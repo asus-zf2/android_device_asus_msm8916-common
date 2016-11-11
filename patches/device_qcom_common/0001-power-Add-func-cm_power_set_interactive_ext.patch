@@ -1,0 +1,84 @@
+From 23c2706b9f261c332cd30003ac56dd9231271be6 Mon Sep 17 00:00:00 2001
+From: remittor <remittor@gmail.com>
+Date: Fri, 11 Nov 2016 15:15:06 +0300
+Subject: [PATCH] power: Add func cm_power_set_interactive_ext
+
+---
+ power/power.c | 59 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 57 insertions(+), 2 deletions(-)
+
+diff --git a/power/power.c b/power/power.c
+index c489dc2..793470d 100644
+--- a/power/power.c
++++ b/power/power.c
+@@ -242,10 +242,65 @@ int __attribute__ ((weak)) set_interactive_override(
+     return HINT_NONE;
+ }
+ 
+-#ifdef SET_INTERACTIVE_EXT
+-extern void cm_power_set_interactive_ext(int on);
++#ifndef SET_INTERACTIVE_EXT
++#define SET_INTERACTIVE_EXT
+ #endif
+ 
++#define SOC_ID_0 "/sys/devices/soc0/soc_id"
++#define SOC_ID_1 "/sys/devices/system/soc/soc0/id"
++
++int get_soc_id(void)
++{
++    int fd;
++    int soc_id = -1;
++    char buf[10] = { 0 };
++
++    if (!access(SOC_ID_0, F_OK))
++        fd = open(SOC_ID_0, O_RDONLY);
++    else
++        fd = open(SOC_ID_1, O_RDONLY);
++
++    if (fd >= 0) {
++        if (read(fd, buf, sizeof(buf) - 1) == -1)
++            ALOGW("Unable to read soc_id");
++        else
++            soc_id = atoi(buf);
++    }
++
++    close(fd);
++    return soc_id;
++}
++
++static int is_target_8916(void)
++{
++    static int is_8916 = -1;
++    int soc_id;
++
++    if (is_8916 >= 0)
++        return is_8916;
++
++    soc_id = get_soc_id();
++    if (soc_id == 206 || (soc_id >= 247 && soc_id <= 250))
++        is_8916 = 1;
++    else
++        is_8916 = 0;
++
++    return is_8916;
++}
++
++#define BIG_CLUSTER_CTL_PATH "/sys/devices/system/cpu/cpu0/core_ctl/"
++#define SMALL_CLUSTER_CTL_PATH "/sys/devices/system/cpu/cpu4/core_ctl/"
++
++void cm_power_set_interactive_ext(int on)
++{
++    if (!is_target_8916()) {
++        ALOGI("%s low power mode", on ? "Disabling" : "Enabling");
++        sysfs_write(BIG_CLUSTER_CTL_PATH "max_cpus", on ? "4" : "0");
++        sysfs_write(BIG_CLUSTER_CTL_PATH "min_cpus", on ? "4" : "0");
++        sysfs_write(SMALL_CLUSTER_CTL_PATH "min_cpus", on ? "0" : "4");
++    }
++}
++
+ void set_interactive(struct power_module *module, int on)
+ {
+     char governor[80];
+-- 
+1.9.5.msysgit.0
+

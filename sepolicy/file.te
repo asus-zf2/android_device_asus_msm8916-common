@@ -1,15 +1,4 @@
-# Default type for anything under /asdf.
-type asdf_data_file, file_type;
+type display_sysfs, sysfs_type, file_type;
 
-# Default type for anything under /factory.
-type fac_file, file_type;
-
-type sysfs_touchscreen, sysfs_type, fs_type;
-
-type proc_driver, fs_type;
-type proc_driver_audio, fs_type;
-type proc_driver_battery, fs_type;
-type proc_driver_camera, fs_type;
-type proc_driver_laf, fs_type;
-
-type proc_asusevtlog, fs_type;
+# Performance settings
+type sysfs_devices_system_iosched, file_type, sysfs_type;

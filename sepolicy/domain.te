@@ -1,2 +1,0 @@
-allow domain proc_driver:dir search;
-allow domain proc_driver_laf:file r_file_perms;

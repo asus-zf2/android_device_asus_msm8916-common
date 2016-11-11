@@ -163,6 +163,18 @@ include device/qcom/sepolicy/sepolicy.mk
 
 BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy
 
+BOARD_SEPOLICY_UNION += \
+    bluetooth_loader.te \
+    bootanim.te \
+    healthd.te \
+    file.te \
+    qseecomd.te \
+    surfaceflinger.te \
+    system_server.te \
+    wcnss_service.te \
+    file_contexts \
+    property_contexts
+
 # Tap-to-Wake
 TARGET_TAP_TO_WAKE_NODE := "/sys/bus/i2c/devices/i2c-5/5-0038/dclick_mode"
 

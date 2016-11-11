@@ -158,6 +158,9 @@ TARGET_RELEASETOOLS_EXTENSIONS := $(VENDOR_PATH)/releasetools
 # RIL
 TARGET_RIL_VARIANT := caf
 
+# GPS
+TARGET_GPS_HAL_PATH := $(VENDOR_PATH)/gps
+
 # SELinux
 include device/qcom/sepolicy/sepolicy.mk
 
